@@ -5,17 +5,17 @@ const IcecastMonitor = require('icecast-monitor')
 
 let data = {}
 const cors = {
-  origin: 'http://localhost:8080',
+  origin: 'https://radiouniverso.live',
 }
 
 const httpServer = Http.createServer()
 const socketServer = SocketIo(httpServer, { cors })
 const mopidy = new Mopidy({
-  webSocketUrl: 'wss://control.radiouniverso.live/mopidy/ws/',
+  webSocketUrl: 'wss://127.0.0.1:6680/mopidy/ws/',
 })
 const icecastMonitor = new IcecastMonitor({
-  host: '94.61.227.207',
-  port: 80,
+  host: '127.0.0.1',
+  port: 8000,
   user: 'lidersupremo',
   password: 'showmewhatyougot',
 })
