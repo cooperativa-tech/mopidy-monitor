@@ -25,9 +25,9 @@ const updateData = (newData) => {
   socketServer.emit('data', data)
 }
 
-const onServerInfo = (err, { listeners }) => {
+const onSourceInfo = (err, { listeners, listenerPeak }) => {
   if (err) throw err
-  updateData({ listeners })
+  updateData({ listeners, listenerPeak })
 }
 
 const onServerListeners = (mount, listeners) => {
@@ -35,9 +35,15 @@ const onServerListeners = (mount, listeners) => {
   updateData({ listeners })
 }
 
+const onServerListenersPeak = (mount, listenerPeak) => {
+  if (mount !== '/radiouniverso') return
+  updateData({ listenerPeak })
+}
+
 const onServerFeed = (err, feed) => {
   if (err) throw err
-  feed.on('server.listeners', onServerListeners)
+  feed.on('mount.listeners', onServerListeners)
+  feed.on('mount.listenerPeak', onServerListenersPeak)
 }
 
 const onTrackEnded = ({ tl_track: { track } }) => {
@@ -59,7 +65,7 @@ const onTrackStarted = async ({ tl_track: { track } }) => {
 }
 
 const onSocketConnection = async (socket) => {
-  icecastMonitor.getServerInfo(onServerInfo)
+  icecastMonitor.getSource('/radiouniverso', onSourceInfo)
   if (!mopidy || !mopidy.playback) return
   const timePosition = await mopidy.playback.getTimePosition()
   const newData = { current: { ...data.current, timePosition } }
@@ -68,7 +74,7 @@ const onSocketConnection = async (socket) => {
 }
 
 const onSocketDisconnect = () => {
-  icecastMonitor.getServerInfo(onServerInfo)
+  icecastMonitor.getSource('/radiouniverso', onSourceInfo)
 }
 
 const onReady = async () => {
@@ -78,7 +84,7 @@ const onReady = async () => {
   const [image] = images[track.album.uri]
 
   updateData({ current: { ...track, timePosition, image } })
-  icecastMonitor.getServerInfo(onServerInfo)
+  icecastMonitor.getSource('/radiouniverso', onSourceInfo)
 }
 
 mopidy.on('state:online', onReady)
