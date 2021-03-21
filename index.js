@@ -11,7 +11,7 @@ const cors = {
 const httpServer = Http.createServer()
 const socketServer = SocketIo(httpServer, { cors })
 const mopidy = new Mopidy({
-  webSocketUrl: 'wss://127.0.0.1:6680/mopidy/ws/',
+  webSocketUrl: 'ws://127.0.0.1:6680/mopidy/ws/',
 })
 const icecastMonitor = new IcecastMonitor({
   host: '127.0.0.1',
@@ -60,7 +60,7 @@ const onTrackStarted = async ({ tl_track: { track } }) => {
 
 const onSocketConnection = async (socket) => {
   icecastMonitor.getServerInfo(onServerInfo)
-
+  if (!mopidy || !mopidy.playback) return
   const timePosition = await mopidy.playback.getTimePosition()
   const newData = { current: { ...data.current, timePosition } }
 
