@@ -3,7 +3,11 @@ const Mopidy = require('mopidy')
 const SocketIo = require('socket.io')
 const IcecastMonitor = require('icecast-monitor')
 
-let data = {}
+let data = {
+  current: {
+    timePosition: 0,
+  },
+}
 const cors = {
   origin: 'https://radiouniverso.live',
 }
@@ -51,6 +55,10 @@ const onTrackEnded = ({ tl_track: { track } }) => {
   updateData({ ended: track, current: { ...data.current, timePosition } })
 }
 
+const incrementTimePosition = () => {
+  data.current.timePosition = data.current.timePosition + 1000
+}
+
 const updateTimePosition = async () => {
   const timePosition = await mopidy.playback.getTimePosition()
 
@@ -86,6 +94,8 @@ const onReady = async () => {
   updateData({ current: { ...track, timePosition, image } })
   icecastMonitor.getSource('/radiouniverso', onSourceInfo)
 }
+
+setInterval(incrementTimePosition, 1000)
 
 mopidy.on('state:online', onReady)
 mopidy.on('event:trackPlaybackEnded', onTrackEnded)
