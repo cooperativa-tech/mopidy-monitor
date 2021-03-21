@@ -1,0 +1,14 @@
+[Unit]
+Description=Mopidy monitor and realtime status server
+After=network.target
+
+[Service]
+ExecStart=/home/cpi/.asdf/shims/node /home/cpi/mopidy-monitor/index.js
+User=cpi
+Restart=always
+# Restart service after 2 seconds if node service crashes
+RestartSec=2
+# Environment=NODE_ENV=production PORT=1337
+
+[Install]
+WantedBy=multi-user.target
